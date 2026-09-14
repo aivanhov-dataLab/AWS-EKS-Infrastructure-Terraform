@@ -339,8 +339,8 @@ The following tools are required:
 ## 1. Clone the repository
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/aivanhov-dataLab/AWS-EKS-Infrastructure-Terraform.git
+
 ```
 
 ---
