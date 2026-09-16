@@ -1,445 +1,139 @@
-# AWS EKS Infrastructure with Terraform
+AWS EKS Infrastructure with Terraform
 
-![Terraform](https://img.shields.io/badge/Terraform-IaC-844FBA?logo=terraform\&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-Cloud-232F3E?logo=amazonaws\&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-326CE5?logo=kubernetes\&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-Administration-FCC624?logo=linux\&logoColor=black)
 
-Infrastructure **AWS entièrement provisionnée avec Terraform**, destinée à fournir une plateforme Kubernetes basée sur **Amazon EKS**, avec une architecture réseau séparant les ressources publiques et privées.
 
-Le projet met l'accent sur les principes **Infrastructure as Code (IaC)**, la segmentation réseau, la gestion des accès AWS/Kubernetes, la sécurité et l'observabilité.
 
----
 
-## 📌 Table of Contents
 
-* [Project Overview](#-project-overview)
-* [Architecture](#-architecture)
-* [Infrastructure Deployed](#-infrastructure-deployed)
-* [Network Architecture](#-network-architecture)
-* [Amazon EKS](#-amazon-eks)
-* [Security](#-security)
-* [Observability](#-observability)
-* [Terraform](#-terraform)
-* [Deployment](#-deployment)
-* [Validation](#-validation)
-* [Project Structure](#-project-structure)
-* [Skills Demonstrated](#-skills-demonstrated)
-* [Future Improvements](#-future-improvements)
-* [Lessons Learned](#-lessons-learned)
+Production-inspired AWS infrastructure for Amazon EKS, fully provisioned with Terraform.
 
----
+A hands-on DevOps project focused on Infrastructure as Code, cloud networking, Kubernetes, security and observability.
 
-# 🚀 Project Overview
+The objective was to design and deploy a reproducible AWS environment suitable for hosting Kubernetes workloads while applying DevOps and Cloud Engineering practices.
 
-The objective of this project is to design and provision a production-inspired AWS Kubernetes infrastructure using **Terraform**.
+🚀 Project Highlights
 
-The infrastructure includes:
+☁️ AWS infrastructure fully managed with Terraform
 
-* A dedicated AWS VPC
-* Public and private subnets distributed across multiple Availability Zones
-* Internet Gateway
-* NAT Gateways
-* Route tables and routing rules
-* Security Groups
-* Amazon EKS cluster
-* Two EKS managed node groups
-* IAM roles and policies
-* KMS encryption
-* OIDC provider
-* EKS managed add-ons
-* CloudWatch logging
-* EKS Pod Identity Agent
+☸️ Amazon EKS Kubernetes cluster
 
-The infrastructure is provisioned using Terraform following an **Infrastructure as Code** approach.
+🌐 Public/private subnet architecture across 3 Availability Zones
 
----
+🔐 IAM, Security Groups, KMS and OIDC
 
-# 🏗 Architecture
+👤 EKS Pod Identity
 
-```text
-                              AWS
+📊 CloudWatch logging
+
+⚙️ 2 EKS Managed Node Groups
+
+🧪 Infrastructure validation with Terraform and kubectl
+
+Deployment result
+77 AWS resources provisioned
+0 changed
+0 destroyed
+
+EKS Cluster        → ACTIVE
+Node Group 1       → ACTIVE
+Node Group 2       → ACTIVE
+
+🏗️ Architecture
+                         AWS / eu-west-3
                                │
-                               ▼
-                        ┌─────────────┐
-                        │     VPC     │
-                        │             │
-                        │  eu-west-3  │
-                        └──────┬──────┘
+                              VPC
                                │
-              ┌────────────────┴────────────────┐
-              │                                 │
-              ▼                                 ▼
-       Public Subnets                    Private Subnets
-       ┌──────────────┐                  ┌──────────────┐
-       │ Public AZ-A  │                  │ Private AZ-A │
-       │ Public AZ-B  │                  │ Private AZ-B │
-       │ Public AZ-C  │                  │ Private AZ-C │
-       └──────┬───────┘                  └──────┬───────┘
-              │                                 │
-              ▼                                 ▼
-     ┌─────────────────┐                 ┌───────────────┐
-     │ Internet Gateway│                 │ NAT Gateways   │
-     └─────────────────┘                 └───────┬───────┘
+             ┌─────────────────┴─────────────────┐
+             │                                   │
+      Public Subnets                       Private Subnets
+        AZ-A / AZ-B / AZ-C                  AZ-A / AZ-B / AZ-C
+             │                                   │
+       Internet Gateway                    NAT Gateways
                                                  │
                                                  ▼
-                                      ┌────────────────────┐
-                                      │    Amazon EKS      │
-                                      │   Kubernetes 1.33  │
-                                      └─────────┬──────────┘
-                                                │
-                                  ┌─────────────┴─────────────┐
-                                  │                           │
-                                  ▼                           ▼
-                         ┌─────────────────┐       ┌─────────────────┐
-                         │ Worker Group 1  │       │ Worker Group 2  │
-                         │ Managed Nodes   │       │ Managed Nodes   │
-                         └─────────────────┘       └─────────────────┘
-```
+                                           Amazon EKS
+                                                 │
+                              ┌──────────────────┴──────────────────┐
+                              │                                     │
+                       Managed Nodes                         Managed Nodes
+                       Worker Group 1                         Worker Group 2
 
----
 
-# ☁️ Infrastructure Deployed
+Worker nodes are deployed in private subnets, with controlled outbound connectivity through NAT Gateways.
 
-The Terraform deployment successfully provisioned **77 AWS resources** with:
+🛠️ Technologies
+Area	Technologies
+Cloud	AWS
+Infrastructure as Code	Terraform
+Container orchestration	Kubernetes / Amazon EKS
+Networking	VPC, Subnets, Route Tables, NAT Gateway, Internet Gateway
+Security	IAM, Security Groups, KMS, OIDC, EKS Pod Identity
+Observability	Amazon CloudWatch
+Administration	Linux, AWS CLI, kubectl
+☸️ EKS Configuration
 
-```text
-77 added
-0 changed
-0 destroyed
-```
-
-### Infrastructure summary
-
-| Component           | Configuration     |
-| ------------------- | ----------------- |
-| Cloud Provider      | AWS               |
-| Region              | `eu-west-3`       |
-| Environment         | `development`     |
-| Infrastructure Tool | Terraform         |
-| Kubernetes Platform | Amazon EKS        |
-| Kubernetes Version  | 1.33              |
-| VPC                 | 1                 |
-| Public Subnets      | 3                 |
-| Private Subnets     | 3                 |
-| NAT Gateways        | 3                 |
-| Managed Node Groups | 2                 |
-| Encryption          | AWS KMS           |
-| Logging             | Amazon CloudWatch |
-| OIDC                | Enabled           |
-| EKS Pod Identity    | Enabled           |
-
-The EKS cluster and both managed node groups reached the `ACTIVE` state after deployment.
-
----
-
-# 🌐 Network Architecture
-
-The infrastructure uses a dedicated VPC with a separation between **public** and **private** network zones.
-
-### Public layer
-
-The public layer contains:
-
-* Public subnets
-* Internet Gateway
-* NAT Gateway infrastructure
-* Public route tables
-
-### Private layer
-
-The private layer contains:
-
-* Private subnets
-* Private route tables
-* NAT-based outbound connectivity
-* EKS worker nodes
-
-Three Elastic IP addresses were provisioned for the NAT Gateway infrastructure.
-
-This architecture allows the Kubernetes worker nodes to remain in private subnets while retaining controlled outbound connectivity.
-
----
-
-# ☸️ Amazon EKS
-
-The Kubernetes control plane is provided by **Amazon EKS**.
-
-```text
-Cluster
-└── myapp-eks-cluster
-    ├── Kubernetes 1.33
-    ├── Worker Group 1
-    └── Worker Group 2
-```
-
-The cluster was successfully created and reached:
-
-```text
-Status: ACTIVE
-Version: 1.33
+Kubernetes: 1.33
 Region: eu-west-3
-```
 
-## Managed Node Groups
+Managed add-ons:
 
-Two managed node groups are configured:
+Amazon VPC CNI
 
-* `worker-group-1`
-* `worker-group-2`
+CoreDNS
 
-Both node groups reached the `ACTIVE` state after provisioning.
+kube-proxy
 
-Using EKS Managed Node Groups allows AWS to handle several aspects of the underlying worker-node lifecycle while Terraform manages the infrastructure configuration.
+EKS Pod Identity Agent
 
----
+Two EKS Managed Node Groups are used to provide the Kubernetes worker infrastructure.
 
-# 🧩 EKS Add-ons
+🔐 Security
 
-The cluster uses AWS-managed Kubernetes add-ons:
+Security is implemented across several layers:
 
-| Add-on                 | Version                |
-| ---------------------- | ---------------------- |
-| Amazon VPC CNI         | `v1.23.1-eksbuild.1`   |
-| CoreDNS                | `v1.13.2-eksbuild.24`  |
-| kube-proxy             | `v1.33.10-eksbuild.25` |
-| EKS Pod Identity Agent | `v1.4.0-eksbuild.2`    |
+Private subnets for EKS worker nodes
 
-These components provide networking, service discovery, Kubernetes network proxying and pod identity capabilities.
+IAM-based AWS permissions
 
----
+EKS Access Entry
 
-# 🔐 Security
+Security Groups
 
-Security was considered at multiple layers of the infrastructure.
+AWS KMS
 
-## IAM
+OIDC provider
 
-Terraform provisions and associates the IAM permissions required by:
+EKS Pod Identity
 
-* EKS cluster
-* EKS worker nodes
-* Kubernetes access
-* AWS services used by the infrastructure
+The architecture avoids the need for static AWS credentials inside Kubernetes workloads.
 
-The deployment also configures an **EKS Access Entry** and associates the `AmazonEKSClusterAdminPolicy`.
-
----
-
-## Security Groups
-
-Dedicated Security Groups and rules are configured for the EKS cluster and worker nodes.
-
-The Terraform deployment created the corresponding EKS security infrastructure and rules before provisioning the cluster and worker nodes.
-
-The objective is to control communication between:
-
-```text
-Internet
-   │
-   ▼
-AWS Network
-   │
-   ▼
-EKS Control Plane
-   │
-   ▼
-Worker Nodes
-```
-
----
-
-## 🔑 KMS
-
-An AWS KMS key is provisioned as part of the infrastructure for encryption-related requirements.
-
-The Terraform output confirms the creation of the KMS key and its associated policy configuration.
-
----
-
-## 🔗 OIDC
-
-An OIDC provider is configured for the EKS environment.
-
-This provides the foundation for integrating Kubernetes workloads with AWS IAM through identity-based mechanisms.
-
----
-
-## 👤 EKS Pod Identity
-
-The **EKS Pod Identity Agent** is enabled as an EKS add-on.
-
-This provides a mechanism for Kubernetes workloads to obtain AWS permissions without relying on static AWS credentials inside containers.
-
----
-
-# 📊 Observability
-
-Amazon CloudWatch logging is integrated into the infrastructure.
-
-A dedicated CloudWatch log group is created for the EKS environment.
-
-This provides a foundation for monitoring and troubleshooting the Kubernetes environment.
-
----
-
-# ⚙️ Terraform
-
-Terraform is used to manage the complete infrastructure lifecycle.
-
-The project follows the Infrastructure as Code workflow:
-
-```text
-Terraform Configuration
-        │
-        ▼
+⚙️ Terraform Workflow
 terraform init
-        │
-        ▼
+       ↓
 terraform validate
-        │
-        ▼
+       ↓
 terraform plan
-        │
-        ▼
+       ↓
 terraform apply
-        │
-        ▼
+       ↓
 AWS Infrastructure
-        │
-        ▼
-Validation
-```
+       ↓
+kubectl validation
 
-The final deployment was successfully completed with:
 
-```text
-Apply complete!
-Resources: 77 added, 0 changed, 0 destroyed.
-```
+Example validation:
 
----
-
-# 🚀 Deployment
-
-## Prerequisites
-
-The following tools are required:
-
-* Terraform
-* Git
-* AWS account
-* AWS credentials configured securely
-* Access to an AWS region supporting Amazon EKS
-
-> AWS credentials and sensitive configuration values must **never be committed to Git**.
-
----
-
-## 1. Clone the repository
-
-```bash
-git clone <repository-url>
-cd <project-directory>
-```
-
----
-
-## 2. Initialize Terraform
-
-```bash
-terraform init
-```
-
----
-
-## 3. Validate the configuration
-
-```bash
-terraform validate
-```
-
----
-
-## 4. Review the execution plan
-
-```bash
-terraform plan
-```
-
-Always review the plan before applying infrastructure changes.
-
----
-
-## 5. Deploy the infrastructure
-
-```bash
-terraform apply
-```
-
-Confirm the deployment when prompted.
-
----
-
-## 6. Verify the deployment
-
-After Terraform completes, verify the infrastructure from the AWS Console and/or Kubernetes tooling.
-
-For example:
-
-```bash
 kubectl get nodes
-```
-
-```bash
 kubectl get pods -A
-```
 
-```bash
-kubectl get namespaces
-```
-
-> These commands are intended for post-deployment validation of the EKS environment.
-
----
-
-# 🧪 Validation
-
-The Terraform deployment was validated through the final infrastructure state.
-
-Expected result:
-
-```text
-EKS Cluster       → ACTIVE
-Worker Group 1    → ACTIVE
-Worker Group 2    → ACTIVE
-Terraform         → 77 resources created
-```
-
-The deployment output confirms that no resources required modification or destruction during the final apply:
-
-```text
-77 added
-0 changed
-0 destroyed
-```
-
----
-
-# 📁 Project Structure
-
-The project is organized around Terraform infrastructure components.
-
-A typical structure is:
-
-```text
+📁 Project Structure
 .
 ├── main.tf
+├── providers.tf
+├── versions.tf
 ├── variables.tf
 ├── outputs.tf
 ├── terraform.tfvars
-├── providers.tf
-├── versions.tf
 ├── modules/
 │   ├── vpc/
 │   ├── eks/
@@ -448,266 +142,45 @@ A typical structure is:
 ├── templates/
 ├── .gitignore
 └── README.md
-```
 
-> Adapt this tree to the exact structure of the repository if your actual files/modules differ.
+🎯 Skills Demonstrated
 
----
+Cloud: AWS · VPC · EKS · IAM · KMS · CloudWatch
 
-# 🧠 Skills Demonstrated
+IaC: Terraform · Variables · Outputs · State · Resource dependencies
 
-This project demonstrates practical experience in:
+Kubernetes: EKS · Managed Node Groups · VPC CNI · CoreDNS · kube-proxy
 
-### Infrastructure as Code
+DevOps: Automation · Version-controlled infrastructure · Validation · Reproducible deployments
 
-* Terraform
-* Declarative infrastructure
-* Resource dependencies
-* Variables and outputs
-* Terraform state management
-* Infrastructure lifecycle management
-
-### AWS
-
-* Amazon VPC
-* Subnets
-* Route Tables
-* Internet Gateway
-* NAT Gateway
-* Elastic IP
-* IAM
-* Security Groups
-* KMS
-* CloudWatch
-* Amazon EKS
-
-### Kubernetes
-
-* Amazon EKS
-* Managed Node Groups
-* Kubernetes networking
-* VPC CNI
-* CoreDNS
-* kube-proxy
-* EKS Pod Identity
-
-### Security
-
-* Network segmentation
-* IAM permissions
-* Security Groups
-* KMS encryption
-* OIDC
-* EKS access management
-
-### DevOps
-
-* Infrastructure automation
-* Reproducible deployments
-* Infrastructure validation
-* Cloud infrastructure documentation
-* Version-controlled infrastructure
+Security: IAM · Network segmentation · Security Groups · OIDC · Pod Identity
 
----
-
-# 📈 Project Methodology
-
-The project follows a structured DevOps workflow:
-
-```text
-1. Infrastructure Design
-          ↓
-2. Terraform Implementation
-          ↓
-3. Configuration Validation
-          ↓
-4. Terraform Plan
-          ↓
-5. Infrastructure Provisioning
-          ↓
-6. Deployment Validation
-          ↓
-7. Documentation
-```
+🔜 Next Steps
 
-The main objective is to make infrastructure **reproducible, version-controlled and maintainable**.
+The next iteration of the project will extend the infrastructure with:
 
----
+CI/CD using GitHub Actions
 
-# 🔮 Future Improvements
+Dockerized application deployment
 
-The current infrastructure provides the foundation for a more complete DevOps platform.
+Container registry
 
-Planned improvements include:
+Terraform security scanning
 
-## CI/CD
-
-Integration with:
-
-* GitHub Actions or Jenkins
-* Automated Terraform validation
-* Terraform plan on Pull Requests
-* Automated deployment workflows
-
-## Kubernetes Application Deployment
-
-Deploy a containerized application on EKS:
-
-```text
-Git
- │
- ▼
-CI/CD
- │
- ▼
-Docker Image
- │
- ▼
-Container Registry
- │
- ▼
-Amazon EKS
- │
- ├── Deployment
- ├── Service
- ├── ConfigMap
- └── Secret
-```
-
-## Infrastructure Security
-
-Potential additions:
-
-* Terraform security scanning
-* Checkov
-* tfsec
-* IAM least-privilege improvements
-* Secret management
-* Policy validation
-
-## Terraform State
-
-Future improvements could include:
-
-* Remote Terraform backend
-* Amazon S3 state storage
-* State locking
-* Separate environments
-
-For example:
-
-```text
-environments/
-├── dev/
-├── staging/
-└── production/
-```
-
-## Monitoring
-
-Potential integration with:
-
-* Prometheus
-* Grafana
-* CloudWatch dashboards
-* Kubernetes metrics
-
-## Cost Optimization
-
-The infrastructure can also be improved through:
-
-* Right-sizing worker nodes
-* NAT Gateway cost analysis
-* Resource lifecycle management
-* Automated cleanup
-* Environment-specific provisioning
-
----
-
-# 📚 Lessons Learned
-
-This project provided practical experience with the dependencies involved in deploying a Kubernetes platform on AWS.
-
-A successful EKS deployment requires coordination between several infrastructure layers:
-
-```text
-Networking
-    │
-    ├── VPC
-    ├── Subnets
-    ├── Routing
-    └── NAT
-         │
-         ▼
-Security
-    │
-    ├── IAM
-    ├── Security Groups
-    └── KMS
-         │
-         ▼
-Amazon EKS
-    │
-    ├── Control Plane
-    ├── Add-ons
-    └── Node Groups
-         │
-         ▼
-Observability
-    │
-    └── CloudWatch
-```
-
-The project also highlights the importance of validating infrastructure incrementally rather than treating `terraform apply` as the only validation step.
-
----
-
-# 📌 Current Status
-
-**Infrastructure deployment: ✅ Completed**
-
-```text
-AWS Region          : eu-west-3
-Environment         : development
-EKS                 : ACTIVE
-Kubernetes          : 1.33
-Managed Node Groups : 2
-VPC                 : 1
-Public Subnets      : 3
-Private Subnets     : 3
-NAT Gateways        : 3
-KMS                 : Enabled
-OIDC                : Configured
-CloudWatch          : Configured
-EKS Pod Identity    : Enabled
-Terraform Resources : 77
-```
-
-The infrastructure has been successfully provisioned and validated at the Terraform/AWS infrastructure level.
-
----
-
-# 👨‍💻 Author
-
-**Scève Aivanhov NGUETSE**
-
-Mechanical Engineer | DevOps / Cloud Engineer
-
-Areas of interest:
-
-* Cloud Infrastructure
-* Infrastructure as Code
-* Kubernetes
-* AWS
-* Terraform
-* Linux
-* Automation
-* DevOps
-
----
-
-# ⭐ Project Objective
-
-This project is part of a practical DevOps/Cloud portfolio focused on building **realistic, reproducible and secure cloud infrastructure using industry-standard technologies**.
-
-The next stage is to build upon this EKS foundation by integrating application deployment, CI/CD, security automation, monitoring and cost optimization.
+Prometheus / Grafana
+
+Remote Terraform state
+
+Environment separation (dev, staging, production)
+
+👨‍💻 About
+
+Scève Aivanhov NGUETSE
+
+Junior DevOps / Cloud Engineer
+
+Interested in:
+
+AWS · Terraform · Kubernetes · Docker · Linux · CI/CD · Cloud Security
+
+This project is part of a practical DevOps portfolio demonstrating the ability to design, provision and validate cloud infrastructure using Infrastructure as Code.
