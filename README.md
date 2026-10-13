@@ -245,7 +245,7 @@ Resources that incur ongoing charges: EKS control plane, EC2 worker nodes, NAT G
 
 **Scève Aivanhov Nguetse**, DevOps Engineer (mechanical engineering background in numerical simulation)
 
-[GitHub](https://github.com/aivanhov-dataLab) · [LinkedIn](#) · Open to junior DevOps opportunities in Denmark
+[GitHub](https://github.com/aivanhov-dataLab) · [LinkedIn](#) · Open to junior DevOps opportunities
 
 ---
 
